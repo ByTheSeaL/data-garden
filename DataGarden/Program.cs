@@ -119,11 +119,13 @@ public class GardenForm : Form
         try
         {
             if (_web?.CoreWebView2 == null || IsDisposed) return Task.CompletedTask;
-            return InvokeAsync(() =>
+            // BeginInvoke marshals onto the UI thread (WebView2 thread affinity)
+            BeginInvoke(() =>
             {
                 try { if (!IsDisposed) _ = _web.CoreWebView2.ExecuteScriptAsync(script); }
                 catch { /* webview gone */ }
             });
+            return Task.CompletedTask;
         }
         catch (ObjectDisposedException) { return Task.CompletedTask; }
     }
