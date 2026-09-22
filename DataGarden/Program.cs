@@ -80,6 +80,7 @@ public class GardenForm : Form
         while (!ct.IsCancellationRequested)
         {
             bool ok = false;
+            string? payload = null;
             try
             {
                 var json = await _http.GetStringAsync(ApiUrl, ct);
@@ -87,7 +88,7 @@ public class GardenForm : Form
                 using var doc = JsonDocument.Parse(json);
                 if (doc.RootElement.ValueKind == JsonValueKind.Array)
                 {
-                    await PushAsync($"window.updateData({json});");
+                    payload = json;
                     ok = true;
                 }
             }
@@ -96,6 +97,8 @@ public class GardenForm : Form
                 // rate limit / network hiccup — keep last data
             }
 
+            if (payload != null)
+                await PushAsync($"window.updateData({payload});");
             await PushAsync(ok
                 ? "window.updateStatus({ok:true});"
                 : "window.updateStatus({ok:false});");
@@ -106,14 +109,23 @@ public class GardenForm : Form
         }
     }
 
-    private async Task PushAsync(string script)
+    /// <summary>
+    /// ExecuteScriptAsync has thread affinity to the UI thread - marshal there.
+    /// Called from the background poll loop; without this every push throws
+    /// cross-thread and is silently swallowed, leaving the HUD on "connecting".
+    /// </summary>
+    private Task PushAsync(string script)
     {
         try
         {
-            if (_web?.CoreWebView2 != null)
-                await _web.CoreWebView2.ExecuteScriptAsync(script);
+            if (_web?.CoreWebView2 == null || IsDisposed) return Task.CompletedTask;
+            return InvokeAsync(() =>
+            {
+                try { if (!IsDisposed) _ = _web.CoreWebView2.ExecuteScriptAsync(script); }
+                catch { /* webview gone */ }
+            });
         }
-        catch { /* webview not ready yet */ }
+        catch (ObjectDisposedException) { return Task.CompletedTask; }
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)

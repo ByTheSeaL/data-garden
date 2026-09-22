@@ -128,7 +128,7 @@ window.updateData = function (arr) {
   const now = new Date();
   document.getElementById('hud-updated').textContent =
     'last update: ' + now.toLocaleTimeString();
-  updateStatus(true);
+  updateStatus({ ok: true });       // pass an object - updateStatus expects {ok:bool}
   for (const t of arr) {
     const p = planets[t.symbol];
     if (!p) continue;
