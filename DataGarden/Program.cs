@@ -57,7 +57,7 @@ public class GardenForm : Form
         // userData folder next to exe so it works from any install location
         var userData = Path.Combine(AppContext.BaseDirectory, "webview-data");
         await _web.EnsureCoreWebView2Async();
-        _web.CoreWebView2.UserAgent = "DataGarden/1.0";
+        
 
         // Map virtual host app.local -> www folder; avoids file:// CORS issues
         var wwwRoot = Path.Combine(AppContext.BaseDirectory, "www");
