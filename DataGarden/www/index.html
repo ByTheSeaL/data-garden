@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Data Garden</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <!-- HUD overlay: connection + last update -->
+  <div id="hud">
+    <div id="hud-title">Data Garden</div>
+    <div id="hud-status"><span id="status-dot" class="dot ok"></span><span id="status-text">connecting&hellip;</span></div>
+    <div id="hud-updated">last update: &mdash;</div>
+  </div>
+  <!-- Floating labels container (CSS2D-like: we position via JS each frame) -->
+  <div id="labels"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./three/three.module.min.js",
+      "three/addons/": "./three/addons/"
+    }
+  }
+  </script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

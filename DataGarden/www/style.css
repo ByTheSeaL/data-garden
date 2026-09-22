@@ -1,0 +1,68 @@
+/* Data Garden — warm, rustic palette on dark bark background */
+
+html, body {
+  margin: 0; padding: 0;
+  background: #231a14;           /* warm near-black bark */
+  overflow: hidden;
+  height: 100%;
+  font-family: "Segoe UI", Georgia, serif;
+}
+
+#scene {
+  position: fixed; inset: 0;
+  display: block;
+}
+
+#hud {
+  position: fixed; top: 14px; left: 16px;
+  color: #d9a86a;                /* soft copper */
+  z-index: 10;
+  user-select: none;
+  pointer-events: none;
+  line-height: 1.5;
+}
+
+#hud-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #e0b078;
+  text-shadow: 0 0 12px rgba(224,176,120,.35);
+}
+
+#hud-status, #hud-updated {
+  font-size: 12px;
+  color: #a98b6d;
+}
+
+.dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.dot.ok   { background: #c98d4b; box-shadow: 0 0 8px rgba(201,141,75,.8); }
+.dot.bad  { background: #7d8794; box-shadow: 0 0 8px rgba(125,135,148,.8); }
+
+/* Floating labels near each sphere */
+#labels {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+.label {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  color: #e8d3b3;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0,0,0,.8);
+  white-space: nowrap;
+}
+.label .sym { font-weight: 700; color: #dcb277; font-size: 12px; margin-right: 6px; }
+.label .chg { font-size: 11px; margin-left: 6px; }
+.chg.up   { color: #d9a05c; }
+.chg.down { color: #8d99a6; }

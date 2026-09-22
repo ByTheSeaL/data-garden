@@ -1,0 +1,52 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish
+        run: dotnet publish DataGarden -c Release -r win-x64 --self-contained false -o publish
+
+      - name: Zip publish output
+        shell: pwsh
+        run: Compress-Archive -Path publish\* -DestinationPath DataGarden-windows.zip
+
+      - name: Find next version tag
+        id: tag
+        shell: pwsh
+        run: |
+          $tags = git ls-remote --tags origin 'v[0-9]*' | ForEach-Object {
+            if ($_ -match 'refs/tags/v(\d+)$') { [int]$Matches[1] }
+          }
+          $next = if ($tags) { ($tags | Measure-Object -Maximum).Maximum + 1 } else { 1 }
+          "tag=v$next" >> $env:GITHUB_OUTPUT
+
+      - name: Create/refresh rolling 'latest' release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag 2>$null
+          gh release create latest DataGarden-windows.zip --title "Data Garden (latest)" --notes "Rolling latest build from main." --latest
+
+      - name: Create versioned release vN
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh release create $env:TAG DataGarden-windows.zip --title "Data Garden $env:TAG" --notes "Automated build ($env:GITHUB_SHA)."
